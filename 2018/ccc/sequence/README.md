@@ -56,11 +56,11 @@ We continued reading the implementation, but it was getting overly complicated. 
 So we turned back to the fuzzer and read the summaries of the logs. Most of them were simple segfaults on reads. But a few had this note:
 > == 15659==ERROR: AddressSanitizer: attempting to call malloc_usable_size() for pointer which is not owned: 0x000000000300
 
-Which seemed interesting. It means for some reason something that is obviously not a pointer is considered a pointer to a chunk. We executed this under a debugger and so it crashed during garbage collection when destroying the `iesq` object that suppose to hold the compiled instructions.
+Which seemed interesting. It means for some reason something that is obviously not a pointer is considered a pointer to a chunk. We executed this under a debugger and so it crashed during garbage collection when destroying the `iseq` object that suppose to hold the compiled instructions.
 It was even better, it was calling `ruby_xfree` on that pointer when it crashed. Which means that if the pointer was pointing to some valid memory, that memory would have been `free`d.
 The pointer was `body->param.opt_table` in the `rb_iseq_free` function.
 
-We stared at the crashing sample for a while and found the "pointer" that was passed to `ruby_xfree` was actually written there. We flipped bits to verified it - and we were right - it is read from the string which is decompiled. We have no idea why.
+We stared at the crashing sample for a while and found the "pointer" that was passed to `ruby_xfree` was actually written there. We flipped bits to verify it - and we were right - it is read from the string which is decompiled. We have no idea why.
 
 Given the info leak, we have all that we need to pass `free` a pointer to our data.
 
