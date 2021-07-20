@@ -26,7 +26,7 @@ if __name__ == "__main__":
 The conditions for the lists are as follows:
 1. The lists length must agree and not exceed 23
 2. The first list may contain only binary digits (0,1)
-3. The second list may contain only binary digits (0,1,2)
+3. The second list may contain only ternary digits (0,1,2)
 
 The conditions are enforced (correctly) by this code:
 ```python
